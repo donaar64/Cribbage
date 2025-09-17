@@ -1,42 +1,21 @@
-import java.awt.BorderLayout;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.io.File;
-import javax.imageio.ImageIO;
-import javax.swing.Timer;
-import java.awt.Graphics2D;
-import java.awt.geom.Line2D;
-
-import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import java.awt.LayoutManager;
 import java.awt.GridLayout;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Frame;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.stream.Stream;
 import java.awt.event.ItemEvent;
-import javax.swing.Icon;
-import java.util.concurrent.TimeUnit;
-import java.awt.Desktop.Action;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.sql.ClientInfoStatus;
-import java.sql.Time;
-import javax.net.ssl.TrustManagerFactorySpi;
-import javax.swing.plaf.basic.BasicTreeUI;
 import java.awt.Font;
 //Playing card images from https://opengameart.org/content/playing-cards-vector-png
 public class game {
@@ -44,12 +23,10 @@ public class game {
 
     final private static String[] cardNames = {"Ace","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Jack","Queen","King"};
     final private static String[] suitNames = {"Heart","Spade","Diamond","Club"};
-    final private static String[] phases = {"Select Crib","Play","Score Hand",};
-     private static int currentPhase = 0;
-     private static int playerScore =0;
-     private static int opponentScore = 0;
-
-     private static ArrayList<Card> Deck = createCards();
+    private static int currentPhase = 0;
+    private static int playerScore =0;
+    private static int opponentScore = 0;
+    private static ArrayList<Card> Deck = createCards();
     final private static ArrayList<Card> Hand = new ArrayList<Card>();
     final private static ArrayList<Card> OHand = new ArrayList<Card>();
     final private static ArrayList<Card> Crib = new ArrayList<Card>();
@@ -63,70 +40,63 @@ public class game {
      private static boolean won = false;
     
     
-    public static void main(String[] args) throws IOException, InterruptedException{
+    public static void main(String[] args) throws IOException{
         
         
         JFrame frame = new JFrame("Cribbage");
         memory.setMainFrame(frame);
+        frame.setSize(700,700);
+        frame.setLayout(null);
+
         JLabel badInput = new JLabel("Red = bad input");
         JLabel instructionLabel = new JLabel("Pick two cards to put in the crib");
+        JLabel opponentInfo = new JLabel("");
+        JLabel playScore = new JLabel("Total:0");
+        JButton button = new JButton("Submit");
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+               submit(); }});
+        JLabel playerScore = new JLabel("0");
+        JLabel opponentScore = new JLabel("0");
+        JLabel showTopOfDeck = new JLabel("Top of Deck");
+        JPanel panel = new JPanel();
+            panel.setLayout(new GridLayout(2,3));
+            
+        JPanel playPanel = new JPanel();
+            playPanel.setLayout(new GridLayout(1,8));
+            
+
         instructionLabel.setBounds(0,0,700,20);
         badInput.setBounds(0,360,700,50);
-        JLabel opponentInfo = new JLabel("");
         opponentInfo.setBounds(0,200,700,100);
-        JLabel playScore = new JLabel("Total:0");
         playScore.setBounds(625,375,100,50);
+        button.setBounds(250,400,200,50);
+        playerScore.setBounds(0,325,100,50);
+        opponentScore.setBounds(0,275,100,50);
+        showTopOfDeck.setBounds(0,0,300,150);
+        panel.setBounds(175, 450, 400, 200);
+        playPanel.setBounds(0,275,700,100);
+
         frame.add(opponentInfo);
         frame.add(badInput);
         frame.add(instructionLabel);
         frame.add(playScore);
+        frame.add(playerScore);
+        frame.add(opponentScore);
+        frame.add(showTopOfDeck);
+        frame.add(playPanel);
+
         memory.setPlayCounter(playScore);
         memory.setInstructionLabel(instructionLabel);
         memory.setOpponentActions(opponentInfo);
         memory.setPlayerActions(badInput);
-       
-        // Creates the frame
-        
-        // adding the action listener
-        //ActionListener listener = new ClickListener();
-        frame.setSize(700,700);
-        JButton button = new JButton("Submit");
         memory.setSubmitButton(button);
-        
-        button.setBounds(250,400,200,50);
-        //button.addActionListener(listener);
-        JLabel playerScore = new JLabel("0");
-        JLabel opponentScore = new JLabel("0");
-        playerScore.setBounds(0,325,100,50);
-        opponentScore.setBounds(0,275,100,50);
-        frame.add(playerScore);
-        frame.add(opponentScore);
         memory.setPlayerScore(playerScore);
         memory.setOpponentScore(opponentScore);
-        JPanel panel = new JPanel();
         memory.setHandPanel(panel);
-        panel.setLayout(new GridLayout(2,3));
-        //Code to make the the part where it show the top card of the deck
-        JLabel showTopOfDeck = new JLabel("Top of Deck");
-        showTopOfDeck.setBounds(0,0,300,150);
-        memory.getMainFrame().add(showTopOfDeck);
         memory.setTopOfDeckShow(showTopOfDeck);
-
-
-        showCards(Deck,panel);
-        frame.setLayout(null);
-
-        
-        
-        panel.setBounds(175, 450, 400, 200);
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-               submit(); }});
-        JPanel playPanel = new JPanel();
-        playPanel.setLayout(new GridLayout(1,8));
         memory.setPlayPanel(playPanel);
-        playPanel.setBounds(0,275,700,100);
-        frame.add(playPanel);
+        showCards(Deck,panel);
         JPanel oHandPanel = new JPanel();
         oHandPanel.setLayout(new GridLayout(1,4));
         memory.setOHandPanel(oHandPanel);
@@ -136,9 +106,6 @@ public class game {
         info.setBounds(0,150,200,50);
         memory.setoHandSignifier(info);
         frame.add(info);
-
-
-        
         frame.add(panel);
         frame.add(button);
         //2. Optional: What happens when the frame closes?
@@ -160,12 +127,8 @@ public class game {
         frame.add(deal);
         memory.setDealSignifier(deal);
         refresh();
-
-
     }
         
-   
-
     /**
      * This method instantiates a full 52 card deck of cards and assigns it to an Array List which it returns
      * @return  ArrayList<Card> The list that is filled with the cards that are created
@@ -250,6 +213,9 @@ else {
     throw new NullPointerException("Too many cards in hand");
 }
 }
+/**
+ * This is the method that gets run whenever the button gets push and is the main method for controlling what gets run in the program.
+ */
 
 public static void submit() {
     if(won){
@@ -259,6 +225,10 @@ public static void submit() {
     if(currentPhase == 0){
         dealToCrib();
         if(currentPhase == 1){
+            ArrayList<JLabel> marks = memory.getOHandMarkers();
+            JPanel oHandPanel = memory.getoHandPanel();
+            oHandPanel.removeAll();  
+            marks.clear();
         if(dealer){
             playCard(false,false);
             if(topOfDeck.getRank().contentEquals("Jack")){
@@ -274,12 +244,7 @@ public static void submit() {
                 memory.getOpponentScore().setText(""+opponentScore+"(+2)");
             }
         }
-        ArrayList<JLabel> marks = memory.getOHandMarkers();
-        JPanel oHandPanel = memory.getoHandPanel();
-        for(JLabel i : marks){
-            oHandPanel.remove(i);
-            
-        }
+
         marks.clear();
        
     }
@@ -319,6 +284,9 @@ public static int countSelected(){
 }
 return numberSelected;
 }
+/**
+ * This is the method that takes the cards selected in phase 0, puts them into the crib, removes them from the hand and does some work so that phase 1 can start
+ */
 public static void dealToCrib() {
     
     JPanel hand = memory.getHandPanel();
@@ -357,6 +325,10 @@ public static void dealToCrib() {
        refresh();
     }
 }
+/**
+ * This method moves all the hand marker after a position down one spot in the list
+ * @param position the position that the hand markers reset from
+ */
 public static  void resetHandMarkers(int position){
     for(int i=position;i<6;i++){
         if(i!=5){
@@ -368,6 +340,9 @@ public static  void resetHandMarkers(int position){
     }
 
 }
+/**
+ * This method makes sure that the screen repaints and because it gets called so often also checks if someone has won the game and if they have does neccessary things
+ */
 public static void refresh(){
     
     
@@ -391,6 +366,11 @@ public static void refresh(){
     SwingUtilities.updateComponentTreeUI(memory.getMainFrame());
 
 }
+/**
+ * This method checks the hand and then plays a card and then plays the opponents card as well
+ * @param player If this is false the player portion of this is skipped over and only the opponents code will run
+ * @param playerGO If the player is already at go
+ */
 public static void playCard(boolean player,boolean playerGO){
 
     List<Card> played = memory.getPlayCards();
@@ -424,7 +404,7 @@ public static void playCard(boolean player,boolean playerGO){
                 PHandStorage.add(cardToPlay);
                 memory.getHandPanel().remove(handMarkers[i]);
                 resetHandMarkers(i);
-                refresh();;
+                refresh();
                 
                 break;
             }}
@@ -472,7 +452,7 @@ public static void playCard(boolean player,boolean playerGO){
             JLabel newCard = new JLabel(new ImageIcon(cardToPlay.getImage()));
             oHandPanel.add(newCard);
             memory.getOHandMarkers().add(newCard);
-            System.out.println(memory.getOHandMarkers());
+            System.out.println("Elements in the list"+memory.getOHandMarkers().size());
             refresh();
         }
         catch(Exception E){
@@ -549,7 +529,12 @@ public static void playCard(boolean player,boolean playerGO){
 
 
 
-
+/**
+ * This method calculates the amount that the current person would get given that they had just played the last card
+ * @param player If this is true then it updates the players score, otherwise it does the opponents
+ * @param update If this is false then it will just return the value and not update score variables and spots on the gui
+ * @return int The amount of points that were scored
+ */
 public static int checkPlayScore(boolean player,boolean update){
     
     List<Card> inPlay = memory.getPlayCards();
@@ -661,7 +646,12 @@ public static int checkPlayScore(boolean player,boolean update){
 
 
 }
-
+/**
+ * This method counts the number of poins that will be gained from submitting a hand and then logs it
+ * @param player determines if the player or the opponent is the one submitting
+ * @param update Determines whether or not to change the scores 
+ * @return int the number of points that the hand scored
+ */
 public static int countCards(boolean player, boolean update){
     ArrayList<Card> toScore = new ArrayList<Card>();    
         if (countSelected()==0){
@@ -792,6 +782,11 @@ public static int countCards(boolean player, boolean update){
         return scoretoAdd;
     }
 }
+/**
+ * This method counts the number of points that will be gained from submitting a hand and then logs it
+ * @param diff The cards that are being checked for points
+ * @return int the number of points that the cards scored
+ */
 public static int countCards(ArrayList<Card> diff){
     ArrayList<Card> toScore = new ArrayList<Card>();
     for(Card i:diff){
@@ -900,7 +895,9 @@ public static int countCards(ArrayList<Card> diff){
     return scoretoAdd;
     
 }
-
+/**
+ * This method is run to determine who the crib will go over to and if both players have had it it initiates the cleanup method
+ */
 public static void wrapUpRound(){
     if(dealer)
     {
@@ -959,6 +956,9 @@ public static void wrapUpRound(){
     }
 
 }
+/**
+ * This method cleans up all leftover and resets the variables so that another round can start
+ */
 public static void cleanUp(){
     if(dealer){
 
@@ -987,7 +987,11 @@ public static void cleanUp(){
     currentPhase = 0;
 
 }
-
+/**
+ * This method takes a list of the opponents cards and then submits every combination of them to the check score method
+ * @param hand The hand that the opponent has
+ * @return int the number of points that the hand scored
+ */
 public static int scoreOpponent(ArrayList<Card> hand){
     int totalscoreAdded = 0;
     for(int i = 0;i<5;i++){
@@ -1020,6 +1024,11 @@ public static int scoreOpponent(ArrayList<Card> hand){
     return totalscoreAdded;
 
 }
+/**
+ * This method takes an array of cards and then returns an arraylist of those values
+ * @param array The array being converted
+ * @return the list of cards that is being returned
+ */
 public static ArrayList<Card> makeList(Card[] array){
     ArrayList<Card> toReturn = new ArrayList<Card>();
     for(Card i : array){
@@ -1124,6 +1133,7 @@ public static void incorrectInput() {
  class cardListener implements ItemListener{
    /**
     * This is the method that is called whenever a checkbox is clicked. It resized the cards so that the client can tell they are selected
+    * @param e This is the event that is being called
     */
     public void itemStateChanged(ItemEvent e){
         Object temp = e.getSource();
@@ -1156,6 +1166,13 @@ class cardCompare implements Comparator<Card>{
     final private static String[] suits ={"Heart","Spade","Diamond","Club"};
     final private static List cardOrder = Arrays.asList(cardNames);
     final private static List suitNames = Arrays.asList(suits);
+   
+   /**
+    * This is the method that takes two cards and determines if a card is greater than another 
+    * @param  a The first card it is checking
+    * @param  b The second card that it is checkin
+    * @return int If the card is 1 after it will return a value of 4, if it is 1-3 that means they are the same suit
+    */
     public int compare(Card a,Card b){
         int aPosition = cardOrder.indexOf(a.getRank());
         int bPosition = cardOrder.indexOf(b.getRank());
@@ -1164,7 +1181,7 @@ class cardCompare implements Comparator<Card>{
         }
         int aSuit = suitNames.indexOf(a.getSuit());
         int bSuit = suitNames.indexOf(b.getSuit());
-        return aPosition-bPosition;
+        return aSuit-bSuit;
 
 
     }
@@ -1264,7 +1281,7 @@ class Memory{
     }
 /**
  * This method sets the hand panel in memory
- * @param panel
+ * @param panel the panel that you want to set
  */
     public static void setHandPanel(JPanel panel){
         handPanel = panel;
@@ -1278,48 +1295,49 @@ class Memory{
     }
 /**
  * This mehtod returns the main frame
- * @return
+ * @return the main frame
  */
     public static JFrame getMainFrame(){
         return mainFrame;
     }
 /**
  * This method returns the hand panel
- * @return
+ * @return the hand panel
  */
     public static JPanel getHandPanel(){
         return handPanel;
     }
 /**
  * This method returns the submit button
- * @return
+ * @return the submit button
  */
     public static JButton getSubmitButton(){
         return submitButton;
     }
 /**
  * This method sets the instruction label
- * @param label
+ * @param label the instruction label
  */
     public static void setInstructionLabel(JLabel label){
         instructionLabel = label;
     }
 /**
- * This method returns the instructino label
- * @return
+ * This method returns the instruction label
+ * @return the instruction label
  */
     public static JLabel getInstructionLabel(){
         return instructionLabel;
     }
 /**
  * This method sets the play panel
+ * @param panel play panel
  */
 public static void setPlayPanel(JPanel panel){
     playPanel =panel;
 }
 /**
  * This method returns the play panel
- * @return
+ * @return the play panel
  */
 public static JPanel getPlayPanel(){
     return playPanel;
@@ -1327,108 +1345,112 @@ public static JPanel getPlayPanel(){
 
 /**
  * This method gets the list of cards in the play zone
- * @return
+ * @return the list of cards in the play zone
  */
 public static ArrayList<Card> getPlayCards(){
     return playCards;
 }
 /**
  * This method sets the label for the player score label
- * @param label
+ * @param label the label for the player score label
  */
 public static void setPlayerScore(JLabel label){
     PlayerScore = label;
 }
 /**
  * This method returns the player score label
- * @return
+ * @return the player score label
  */
 public static JLabel getPlayerScore(){
     return PlayerScore;
 }
 /**
  * This method sets the label for the opponent score label
- * @param label
+ * @param label the label for the opponent score label
  */
 public static void setOpponentScore(JLabel label){
     opponentScore = label;
 }
 /**
  * This method returns the label for the opponent score label
- * @return
+ * @return the label for the opponent score label
  */
 public static JLabel getOpponentScore(){
     return opponentScore;
 }
 /**
  * This method sets the label for the opponent actions label
- * @param label
+ * @param label the label for the opponent actions label
  */
 public static void setOpponentActions(JLabel label){
     opponentActions = label;
 }
 /**
  * This method returns the label for the opponent actions label
- * @return
+ * @return the label for the opponent actions label
  */
 public static JLabel getOppnentActions(){
     return opponentActions;
 }
 /**
  * This method sets the label for the player actions label
- * @param label
+ * @param label the label for the player actions label
  */
 public static void setPlayerActions(JLabel label){
     playerActions = label;
 }
 /**
  * This method returns the label for the player actions label
- * @return
+ * @return the label for the player actions label
  */
 public static JLabel getPlayerActions(){
     return playerActions;
 }
 /**
  * This method sets the label for the play score counter label
- * @param label
+ * @param label the label for the play score counter label
  */
 public static void setPlayCounter(JLabel label){
     playCounter = label;
 }
 /**
- * This method returns the label for the top of deck shower
- * @return
+ * This method returns the label for the play counter
+ * @return label for the play counter
  */
 public static JLabel getPlayCounter(){
     return playCounter;
 }
+/**
+ * This method sets the label for the top of Deck shower
+ * @param label
+ */
 public static void setTopOfDeckShow(JLabel label){
     showTopOfDeck = label;
 }
 /**
  * This method returns the label for the top of deck shower
- * @return
+ * @return label for the top of deck shower
  */
 public static JLabel getSetTopOfDeckShow(){
     return showTopOfDeck;
 }
 /**
  * This method sets the hand panel in memory
- * @param panel
+ * @param panel the hand panel in memory
  */
 public static void setOHandPanel(JPanel panel){
     oHandPanel = panel;
 }
 /**
  * This method returns the panel for the opponents hand
- * @return
+ * @return the panel for the opponents hand
  */
 public static JPanel getoHandPanel(){
     return oHandPanel;
 }
 /**
  * This method returns the list containt the markers for the opponents hand panel
- * @return
+ * @return the list containt the markers for the opponents hand panel
  */
 public static ArrayList<JLabel> getOHandMarkers(){
     return oHandPanelMarkers;
@@ -1436,42 +1458,37 @@ public static ArrayList<JLabel> getOHandMarkers(){
 
 /**
  * This method returns the lists of the lists of scored hands
- * @return
+ * @return the lists of the lists of scored hands
  */
 public static ArrayList<ArrayList<Card>> getScoredHands(){
     return scoredHands;
 }
 /**
  * This method sets the variable for the label for the oponents hand
- * @return
+ * @return the variable for the label for the oponents hand
  */
 public static void setoHandSignifier(JLabel label){
     oHandSignifier = label;
 }
 /**
  * This method returns the label for the opponents hand
- * @return
+ * @return the label for the opponents hand
  */
 public static JLabel getOHandSignifier(){
     return oHandSignifier;
 }
 /**
  * Sets the label for who has the deal
- * @param label
+ * @param label label for who has the deal
  */
 public static void setDealSignifier(JLabel label){
     dealSignifier = label;
 }
 /**
  * This method returns the label for who has the deal
- * @return
+ * @return the label for who has the deal
  */
 public static JLabel getDealSignifier(){
     return dealSignifier;
 }
-
-
-
-    
-
 }
